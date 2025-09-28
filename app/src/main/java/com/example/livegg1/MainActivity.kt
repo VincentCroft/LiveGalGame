@@ -132,47 +132,40 @@ fun CameraScreen(cameraExecutor: ExecutorService) {
     LaunchedEffect(Unit) {
         while (true) {
             delay(5000L)
-            if (!showPreview) {
-                showPreview = true
-                delay(100L)
-            }
             Log.d("CameraScreen", "Attempting to take photo...")
             takePhoto(
                 imageCapture = imageCapture,
                 executor = cameraExecutor,
                 onImageCaptured = { originalBitmap ->
                     val croppedBitmap = cropBitmapToAspectRatio(originalBitmap, screenAspectRatio)
+                    // 释放旧图片内存并更新为新图片
                     capturedImageBitmap?.recycle()
                     capturedImageBitmap = croppedBitmap
-                    showPreview = false
-                    Log.d("CameraScreen", "Image captured and bitmap updated. showPreview = false")
+                    Log.d("CameraScreen", "Image captured and bitmap updated.")
                 },
                 onError = { exception ->
                     Log.e("CameraScreen", "Photo capture failed: ${exception.message}", exception)
-                    showPreview = true
+                    // 拍照失败时可以考虑是否需要提示用户
                 }
             )
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (showPreview) {
-            AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
-            Log.d("CameraScreen", "Showing PreviewView")
-        } else {
-            capturedImageBitmap?.let { bitmap ->
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "Captured Image",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center
-                )
-                Log.d("CameraScreen", "Showing captured image")
-            } ?: run {
-                Text("Error: No image to display.", modifier = Modifier.align(Alignment.Center))
-                Log.d("CameraScreen", "capturedImageBitmap is null, but showPreview is false")
-            }
+        // 摄像头预览一直在底层运行
+        AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
+
+        // 拍摄的照片在顶层，会覆盖预览
+        // 当 capturedImageBitmap 为 null 时 (初始状态)，Image 不会显示
+        capturedImageBitmap?.let { bitmap ->
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Captured Image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop, // 确保图片填满屏幕
+                alignment = Alignment.Center
+            )
+            Log.d("CameraScreen", "Showing captured image")
         }
     }
 }
