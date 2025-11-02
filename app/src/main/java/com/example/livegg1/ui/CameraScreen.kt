@@ -54,6 +54,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,6 +99,7 @@ import android.view.View
 import com.example.livegg1.R
 import kotlin.random.Random
 import kotlin.math.min
+import kotlin.math.max
 import android.graphics.Canvas as AndroidCanvas
 
 @Composable
@@ -399,7 +402,6 @@ fun CameraScreen(
         chapterTitle = chapterTitle,
         previewView = { AndroidView({ previewView }, modifier = Modifier.fillMaxSize()) },
         affectionLevel = affectionLevel,
-        heartOffsetY = 12.dp,
         onSaveSnapshot = ::saveCurrentScreen,
         onManageTriggers = onManageTriggers
     )
@@ -417,7 +419,6 @@ private fun CameraScreenContent(
     chapterTitle: String,
     previewView: @Composable () -> Unit,
     affectionLevel: Float,
-    heartOffsetY: Dp = 8.dp,
     onSaveSnapshot: (String) -> Unit = {},
     onManageTriggers: () -> Unit = {}
 ) {
@@ -433,11 +434,26 @@ private fun CameraScreenContent(
     val scaleBase = min(widthRatio, heightRatio)
     val scaleFactor = (scaleBase * 1.25f).coerceIn(0.85f, 1.75f)
 
+    val density = LocalDensity.current
+    val chapterBottomOffset = 24.dp + 68.dp
     val heartSize = (40f * scaleFactor).dp
-    val heartOffsetScaled = heartOffsetY * scaleFactor
     val spacerHeight = (4f * scaleFactor).dp
-    val affectionBarHeight = (180f * scaleFactor).dp
     val affectionBarWidth = (24f * scaleFactor).dp
+
+    val fallbackGradientTop = (configuration.screenHeightDp.toFloat() * 0.6f).dp
+    val fallbackBarHeight = (fallbackGradientTop - chapterBottomOffset - heartSize - spacerHeight).coerceAtLeast(0.dp)
+
+    var captionTopPx by remember { mutableStateOf<Float?>(null) }
+
+    val heartSizePx = with(density) { heartSize.toPx() }
+    val spacerHeightPx = with(density) { spacerHeight.toPx() }
+    val columnTopOffsetPx = with(density) { chapterBottomOffset.toPx() }
+    val computedBarHeightPx = captionTopPx?.let { top ->
+        max(0f, top - columnTopOffsetPx - heartSizePx - spacerHeightPx)
+    }
+    val affectionBarHeight = computedBarHeightPx?.let { px -> with(density) { px.toDp() } } ?: fallbackBarHeight
+
+    val columnTopOffset = chapterBottomOffset
 
     Box(modifier = Modifier.fillMaxSize()) {
         // 1. 摄像头预览或占位图一直在最底层
@@ -445,22 +461,15 @@ private fun CameraScreenContent(
 
         Column(
             modifier = Modifier
-                .align(Alignment.CenterStart)
+                .align(Alignment.TopStart)
                 .padding(start = 32.dp)
-                .offset(x = 30.dp, y = (-40).dp)
+                .offset(x = 30.dp, y = columnTopOffset)
                 .zIndex(3f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "",
-                color = Color.White,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
             HeartIcon(
                 modifier = Modifier
                     .size(heartSize)
-                    .offset(y = heartOffsetScaled)
                     .zIndex(1f)
             )
             Spacer(modifier = Modifier.height(spacerHeight))
@@ -639,6 +648,11 @@ private fun CameraScreenContent(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 100.dp, bottom = 70.dp, end = 24.dp)
+                        .onGloballyPositioned { coordinates ->
+                            if (captionTopPx == null) {
+                                captionTopPx = coordinates.positionInRoot().y
+                            }
+                        }
                 ) {
                     val shadow = Shadow(color = Color.Black, offset = Offset(4f, 4f), blurRadius = 8f)
                     Text(
