@@ -57,4 +57,13 @@ CSDN下载链接：https://download.csdn.net/download/qq_63533710/92237453
 
 并把 `release.keystore` 放在合适位置（与 `signing.properties` 中 path 对应）。请妥善保管密钥与密码。
 
+## 贡献者
+
+![cr](https://contrib.rocks/image?repo=JStone2934/LiveGalGame)
+
+## Star
+
+[![Star History Chart](https://api.star-history.com/svg?repos=JStone2934/LiveGalGame&type=Date)](https://star-history.com/#JStone2934/LiveGalGame&Date)
+
+
 ## 欢迎自由开发，有活你就直接往里加
