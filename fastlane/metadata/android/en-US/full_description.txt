@@ -1,0 +1,5 @@
+Some galgame players reported that subtitles and dialogue boxes didn't pop up when talking to female characters. This app was developed to address this issue.
+
+As a prank app, it currently doesn't integrate AI and can run offline.
+
+Currently, a dialogue box pops up when asking a question; more fun features can be added later.

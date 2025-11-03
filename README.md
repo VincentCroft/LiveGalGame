@@ -6,9 +6,14 @@
 
 作为整活向APP，目前没有接入AI，可以离线运行
 
-APP在[tag](https://github.com/JStone2934/LiveGalGame/tags)中可以直接下载，报毒是正常状况，请放心使用
+### 画面卡顿是为了复刻GalGame切换CG的效果，后续会开发可以手动切换更新帧率的功能。
 
-目前检测到提问时会弹出对话框，后续可以加更好玩的功能.
+APP在[tag](https://github.com/JStone2934/LiveGalGame/tags)中可以直接下载，报毒是正常状况，请放心使用
+ 
+
+## 使用教程
+
+点击齿轮按钮可以设置触发弹窗的关键词，SAVE和Q.SAVE可以保存当前截屏到手机。好感度条会随着时间慢慢减少，有语音的时候会不断提高，选择不同的弹窗选项也会影响好感度。
 
 <img width="2533" height="1427" alt="image" src="https://github.com/user-attachments/assets/65dd6c6f-bf47-4bc0-9695-034c7faa290d" />
 
