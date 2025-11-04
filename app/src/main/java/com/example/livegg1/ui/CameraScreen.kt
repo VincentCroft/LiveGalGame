@@ -523,7 +523,7 @@ fun CameraScreen(
     if (isIntervalDialogVisible) {
         AlertDialog(
             onDismissRequest = { isIntervalDialogVisible = false },
-            title = { Text("调整更新间隔") },
+            title = { Text("调整CG更新间隔") },
             text = {
                 Column {
                     Text("拖动滑块来设定画面更新的间隔时间")
